@@ -1,0 +1,809 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Whitsunday in Motion — Process Journal</title>
+<meta name="description" content="Field journal for a motion-activated interactive display for Whitsunday Coast Airport. Interaction design and TouchDesigner build by Matt Bissell.">
+<style>
+:root{
+  --bg:#fbfaf8;
+  --fg:#1b1a18;
+  --muted:#6a665f;
+  --rule:#e2ddd4;
+  --accent:#1f6f72;
+  --codebg:#f2efe9;
+  --placeholder:#edeae3;
+  --maxw:44rem;
+  --wide:58rem;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15161a;
+    --fg:#e6e3dd;
+    --muted:#9a958c;
+    --rule:#2c2e34;
+    --accent:#6fc2c4;
+    --codebg:#1d1f24;
+    --placeholder:#1d1f24;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15161a;
+  --fg:#e6e3dd;
+  --muted:#9a958c;
+  --rule:#2c2e34;
+  --accent:#6fc2c4;
+  --codebg:#1d1f24;
+  --placeholder:#1d1f24;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--fg);
+  font:17px/1.65 ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
+  padding:0 16px;
+}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:4rem 0 6rem}
+
+h1{
+  font-size:2.1rem;line-height:1.15;margin:0 0 .4rem;
+  letter-spacing:-.015em;font-weight:600;
+}
+.standfirst{color:var(--muted);font-size:1.05rem;margin:0 0 1.6rem}
+.byline{
+  font:500 .8rem/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  letter-spacing:.06em;text-transform:uppercase;color:var(--muted);
+  border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);
+  padding:.7rem 0;margin:0 0 2.6rem;
+}
+.byline span{display:inline-block;margin-right:1.4rem}
+
+h2{
+  font-size:1.35rem;line-height:1.25;margin:3.2rem 0 .3rem;
+  font-weight:600;letter-spacing:-.01em;
+}
+h3{font-size:1.02rem;margin:2rem 0 .3rem;font-weight:600}
+
+.date{
+  font:600 .74rem/1 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--accent);
+  margin:3.4rem 0 .1rem;
+}
+h2 + p, h3 + p, .date + h2{margin-top:.6rem}
+
+p{margin:0 0 1.1rem}
+a{color:var(--accent)}
+a:hover{text-decoration-thickness:2px}
+
+ul,ol{margin:0 0 1.1rem;padding-left:1.2rem}
+li{margin:.3rem 0}
+
+strong{font-weight:600}
+
+blockquote{
+  margin:1.4rem 0;padding:0 0 0 1.1rem;
+  border-left:3px solid var(--rule);color:var(--muted);font-style:italic;
+}
+
+pre,code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+pre{
+  background:var(--codebg);border:1px solid var(--rule);border-radius:4px;
+  padding:.9rem 1rem;overflow-x:auto;font-size:.82rem;line-height:1.5;
+  margin:1.2rem 0;
+}
+code{font-size:.88em;background:var(--codebg);padding:.1em .35em;border-radius:3px}
+pre code{background:none;padding:0;font-size:1em}
+
+figure{margin:1.8rem 0}
+figure img{
+  width:100%;height:auto;display:block;border-radius:3px;
+  border:1px solid var(--rule);background:var(--placeholder);
+}
+figcaption{
+  font:400 .82rem/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  color:var(--muted);margin-top:.5rem;
+}
+figure.pair{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+figure.pair figcaption{grid-column:1 / -1;margin-top:0}
+figure.trio{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.6rem}
+figure.trio figcaption{grid-column:1 / -1;margin-top:0}
+figure.narrow img{max-width:420px;margin:0 auto}
+
+/* wide figures break out of the text column on larger screens */
+@media (min-width:62rem){
+  figure.wide{
+    width:var(--wide);
+    margin-left:calc((var(--maxw) - var(--wide)) / 2);
+  }
+}
+
+.slot{
+  background:var(--placeholder);
+  border:1px dashed var(--rule);
+  border-radius:4px;
+  min-height:150px;
+  display:flex;align-items:center;justify-content:center;
+  padding:1.6rem 1.2rem;text-align:center;
+  font:400 .82rem/1.55 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  color:var(--muted);
+  margin:1.8rem 0;
+}
+.slot b{display:block;font-weight:600;color:var(--fg);margin-bottom:.25rem;
+  font-size:.74rem;letter-spacing:.09em;text-transform:uppercase}
+
+table{
+  width:100%;border-collapse:collapse;margin:1.3rem 0;
+  font:400 .88rem/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-weight:600;font-size:.76rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+
+hr{border:0;border-top:1px solid var(--rule);margin:3rem 0}
+
+.note{
+  background:var(--codebg);border:1px solid var(--rule);border-radius:4px;
+  padding:1rem 1.1rem;margin:1.4rem 0;
+  font:400 .92rem/1.6 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+.note p:last-child{margin-bottom:0}
+.note b{font-weight:600}
+
+.refs{font-size:.92rem}
+.refs li{margin:.6rem 0}
+
+footer{
+  margin-top:4rem;padding-top:1.4rem;border-top:1px solid var(--rule);
+  font:400 .84rem/1.6 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  color:var(--muted);
+}
+
+@media (max-width:560px){
+  body{font-size:16px}
+  h1{font-size:1.65rem}
+  .wrap{padding:2.6rem 0 4rem}
+  figure.pair,figure.trio{grid-template-columns:1fr}
+}
+</style></head>
+<body>
+<div class="wrap">
+
+<h1>Whitsunday in Motion</h1>
+<p class="standfirst">Field journal for a motion-activated interactive display at Whitsunday Coast Airport. Research, dead ends, the maths that took four goes, and the build that came out the other side.</p>
+
+<p class="byline">
+  <span>Matt Bissell</span>
+  <span>BCI304 · UniSC</span>
+  <span>August – October 2026</span>
+</p>
+
+<figure class="wide">
+  <img src="images/hero-terminal.jpg" alt="Interactive display showing a turquoise bathymetric map of the Whitsundays, mounted in an airport terminal interior">
+  <figcaption>The display in situ. Greyboxed terminal with the map running, lit as described further down.</figcaption>
+</figure>
+
+<p>This is the working journal for my part of <strong>Whitsunday in Motion</strong>, a team project developing interactive displays for Whitsunday Coast Airport with Whitsunday Regional Council as the partner. The team had enough people across 3D modelling and environment work, so I took the interaction and technical strand: sensing, and building a functional TouchDesigner prototype using the Kinect. I also delivered a MediaPipe version because it is easier to test — though it should be noted that MediaPipe cannot differentiate between multiple skeletons.</p>
+
+<p>The outcome I took to the presentation is a <strong>sculpture finder</strong>. A bathymetric map of the waters around Hook Island, essentially where the sculpture lane is, sits under a layer of water. A person standing in front of the display parts the water with their hands, and holding over one of the Ngaro underwater sculptures or a reef restoration site reveals it and names it.</p>
+
+<p>For this interaction the map is not a 1:1 recreation of where the sculptures are. Positions live in a TouchDesigner table and can be moved per sculpture and location.</p>
+
+<figure class="wide">
+  <img src="images/signal-flow.svg" alt="Diagram of the signal flow in two tracks. The person: sense, normalise, decide. The picture: source, layers, carve, composite.">
+  <figcaption>How it works end to end. Two tracks that meet at the carve. Everything right of box 2 works in normalised screen space, which is why swapping the sensor is one constant.</figcaption>
+</figure>
+
+<hr>
+
+<h2>Reading and context</h2>
+
+<p>Fin set the Week 5–6 brief: research the Whitsundays' history, places and ecosystems, look at interactive installation work, come back with a broad idea. Named starting points were TouchDesigner, <strong>Torin Blankensmith</strong>, <strong>teamLab</strong> and <strong>Universal Everything</strong>, with <strong>bileam tschepe</strong> and <strong>Josef Pelz</strong> on the technique side. <strong>INDE</strong>, who build AR into airport baggage halls, was the closest thing to a direct commercial precedent for the brief we had.</p>
+
+<p>Most of my reference gathering was practitioner work rather than literature. Universal Everything and teamLab at the ambient, body-driven end, and directed instruction-led pieces at the other, to see what a prompt-based experience costs you in atmosphere.</p>
+
+<figure>
+  <img src="images/interaction-inspiration.jpg" alt="Reference board of contemporary interactive installation work">
+  <figcaption>Reference board. Ambient and body-driven at one end, directed and instruction-led at the other.</figcaption>
+</figure>
+
+<h3>Interaction types</h3>
+
+<p>When looking at interactions and in the scheduled team meetings it made sense to document a category system for interaction. After some research on UX and interaction:</p>
+
+<ul>
+  <li><strong>Hidden or hard to notice.</strong> Observing presence, using presence to drive some effect, but with something happening even without anyone there.</li>
+  <li><strong>A spot on the ground</strong> that activates the sensor. "Stand here", outlines of feet.</li>
+  <li><strong>A prompt on the screen itself.</strong></li>
+  <li><strong>Gamified.</strong> Controlling a character, text or quiz based.</li>
+</ul>
+
+<p>The sculpture finder has a resting state that runs whether or not anyone is there, which can act as a nice ambient. Not putting "stand here" on the floor and not putting a prompt on the screen are decisions against categories two and three, and the reasoning is in the inclusive design entry further down.</p>
+
+<h3>What interactivity actually means here</h3>
+
+<p>The reading that stuck was on interactivity as a <em>spectrum</em> rather than a property, running from passive consumption through to genuine co-creation. People working together might find a sculpture first, or race others to find the rest. But it is important that your control over the interaction is apparent and meaningful, which steers the direction toward artistic, hands-on and informational if so desired — hovering on a sculpture could activate an information screen.</p>
+
+<p>Importantly the question should not just be "does it respond", but "how much of what appears on screen did the person actually author". The sculpture finder is honestly somewhere in the middle: you choose what to uncover and the order you uncover it in, and that is the whole of your authorship.</p>
+
+<h3>Transit spaces specifically</h3>
+
+<p>Research on public displays describes <em>display blindness</em>: screens in transit spaces get filtered out as advertising before anyone reads them, and the Audience Funnel model describes the stages a passer-by moves through before they are actually interacting rather than just walking past. Everything in the build below is downstream of that. If the display waits to be approached and touched, it loses most people at the first stage.</p>
+
+<hr>
+
+<h2>Who it's for</h2>
+
+<p>The team circled around a persona early, so it belongs up here rather than buried in a weekly entry.</p>
+
+<p>It was in our own stakeholder questions from the start. The note we drafted for Fin to take to the Council opens: <em>"Treating this as a means of advertising the Whitsundays to people visiting for events (a la Olympics), what are some local attractions the stakeholders want us to demonstrate here?"</em> So the event framing is not something I have reverse engineered onto the project. It is where the team started.</p>
+
+<p>The deployment window is <strong>2032</strong>. Sailing for the Brisbane Olympic and Paralympic Games was relocated to the Whitsundays in the Queensland Government's 100-Day Review in March 2025, with racing on the Whitsunday Passage and Airlie Beach as the base. That gives the project a real date and a real crowd rather than a hypothetical one.</p>
+
+<p>The persona that came out of it is an international visitor arriving for a sailing event. Mid to upper income, disposable spending, in the Whitsundays for the first time and probably the only time. They are not coming for the reef. They are coming for a regatta, and the reef is what happens to be there.</p>
+
+<p>That last sentence is the design problem. Everything below about display blindness, and about presence rather than reaching, is downstream of designing for someone whose attention is already committed to something else.</p>
+
+<p>Worth being accurate about how settled this was. The same notes record the demographic question as explicitly open — <em>"Wide demographic. Could we target specifics with different displays?"</em> — which was never closed, but was a constant thought through the project.</p>
+
+<ul>
+  <li><strong>Arriving or departing?</strong> Someone arriving for an event has a fixed schedule and may never reach the sculpture trail. Someone departing has already seen the place and is deciding what they think of it. The first makes the display a conversion tool, the second a legacy one. They are not the same design, and I have been building as though the question does not exist.</li>
+  <li><strong>The persona contains a contradiction.</strong> A high-disposable-income visitor audience is both the group most able to visit and fund reef restoration, and the group whose tourism puts pressure on the reef to begin with. The display surfaces recovery work to exactly the people who are both the money and the threat. I do not have a position on that yet.</li>
+  <li><strong>Does the precedent research still apply?</strong> Display blindness and the Audience Funnel are mostly studied on bored commuters in ordinary transit. An Olympic-period terminal is a surge environment: dense, excited, time-pressured, multilingual. teamLab is a destination people buy tickets for and INDE's work is aimed at people standing still at a baggage carousel with nothing else to do. Neither is a crowd moving through at pace. I am not sure how much transfers, and the places it breaks are probably more interesting than the places it holds.</li>
+</ul>
+
+<h3>Six years is a long time</h3>
+
+<p>Crucial pieces of technology can spark huge changes in this space. However I would argue simple, well thought out interactions are still timeless.</p>
+
+<hr>
+
+<p class="date">Week 5 — the project plan</p>
+<h2>Roles, and what we did not have</h2>
+
+<p>Task 1 was the project plan and it allocated sections by name. Mine was <strong>Risk Management</strong>. On the working roles I was down for <strong>Research</strong> alongside Alex Luc, while also researching the Kinect — what is possible with it, what it has been used for in interactive work, and how real-time interaction might actually be deployed.</p>
+
+<p>Past works I do fall more on the creative or artistic side, but I am fascinated by technical art and I enjoy working with TouchDesigner and Blender, where you can work with an interesting blend of art and science. For this project we had modellers, so I gravitated toward the TouchDesigner interaction.</p>
+
+<h3>Previous group's work</h3>
+
+<figure class="pair">
+  <img src="images/terminal-greybox.jpg" alt="Untextured greybox model of the airport terminal interior">
+  <img src="images/terminal-previs-grey.jpg" alt="Flat grey render of the terminal with the display on the wall">
+  <figcaption>What we inherited. Overlapping geometry and non-uniform scale on the meshes, which is enough to make Unreal's lighting behave oddly.</figcaption>
+</figure>
+
+<p>We had been planning around inheriting 3D models, textures and technical documentation. What came back was "not really, more 2D mockup anim". Matthew Oliver's modelling task was written as "improving on the 3D model built by Graham", and there was no model to improve.</p>
+
+<p>Stakeholder access ran entirely through Fin. The plan has a section of questions for stakeholders that we had no way to ask directly, and the communication chain in the notes reads, verbatim, "ask Dylan to annoy Fin to annoy the Stakeholders." Funny at the time. It is also the structural reason there is no direct community engagement anywhere in this project.</p>
+
+<p>We also never received the airport specifications — screen size, hardware, mounting, orientation. Every resolution and aspect decision in this journal is made against an assumption rather than a spec.</p>
+
+<h3>The timeline we set</h3>
+
+<table>
+<tr><th>Week</th><th>Planned</th></tr>
+<tr><td>5</td><td>Task 1 submission</td></tr>
+<tr><td>5–7</td><td>Research and brainstorming, collated into shared docs</td></tr>
+<tr><td>6</td><td>Identify 1–3 possible installations, select the primary one</td></tr>
+<tr><td>6–8</td><td>Co-create interactive prototype. 3D model development</td></tr>
+<tr><td>8</td><td>3D model ready for mock-ups</td></tr>
+<tr><td>10</td><td>Operational prototype and pitch deck draft</td></tr>
+<tr><td>11</td><td>Task 2 or 3 draft</td></tr>
+<tr><td>12</td><td>Task 2 and 3 submission</td></tr>
+</table>
+
+<hr>
+
+<p class="date">12.08.2026 — Week 5</p>
+<h2>Research, moodboard, and a grid to argue with</h2>
+
+<p>Brief for the week was blue-sky: research the Whitsundays' history, places and ecosystems, look at interactive installation work, and come back with a direction. I collected reference images from around the Whitsundays and started a shared moodboard.</p>
+
+<figure>
+  <img src="images/moodboard.jpg" alt="Moodboard of Whitsundays imagery: aerial beaches, coral, marine life, coastline">
+  <figcaption>Whitsundays reference board. Aerials, coral, coastline, marine life.</figcaption>
+</figure>
+
+<p>Rather than just dumping references in, I set up a simple 2×2 grid and asked everyone to place what they found on it. Two axes:</p>
+
+<ul>
+  <li><strong>Informational</strong> ↔ <strong>Aesthetic</strong></li>
+  <li><strong>Directed</strong> ↔ <strong>Ambient</strong></li>
+</ul>
+
+<figure>
+  <img src="images/quadrant.jpg" alt="A 2x2 grid with axes labelled Informational, Aesthetic, Ambient and Directed, with reference images placed on it">
+  <figcaption>The grid. Informational against Aesthetic, Ambient against Directed.</figcaption>
+</figure>
+
+<p>This was useful and something I will use going forward — a 2×2 grid to sort interactions. My examples landed in the aesthetic and ambient corner. Nearly everything that would be defensible to a council landed in the informational corner, which is a good consideration. Having that visible on a grid meant the difference between my interests and the client's interests was something the team could point at and discuss, rather than something that surfaced later as a disagreement about a specific design.</p>
+
+<h3>Sensing</h3>
+
+<p>The Kinect is a genuinely good piece of hardware and there is already one in the Whitsundays. The risk is Kinect Studio being legacy software on current Windows, though Kinect Studio with recorded footage worked a treat here. MediaPipe also produces similar enough data — skeletal tracking, landmarks, straight into TouchDesigner — so I treated it as the stand-in from the start. That decision turned out to matter a lot more than I thought it would.</p>
+
+<figure class="pair">
+  <img src="images/kinect-pointcloud.jpg" alt="Point cloud of a room with a tracked skeleton standing in it">
+  <img src="images/mediapipe-data.jpg" alt="Webcam frames with landmark overlays on a person in a T-pose and with arms out">
+  <figcaption>Kinect depth point cloud with the skeleton solved on top. Same kind of data out of MediaPipe from a webcam.</figcaption>
+</figure>
+
+<hr>
+
+<p class="date">16.08.2026</p>
+<h2>Three concepts</h2>
+
+<h3>Proximity sea anemone</h3>
+
+<p>Anemone tendrils, scattered geometry or splines, swaying in simulated current. People are detected and represented in the scene as an invisible sphere, with the sphere's influence driven by distance from the screen. You move through the anemone the way a clownfish does, seeing a part of the Whitsundays from a vantage point you would not otherwise get.</p>
+
+<p>I had built something close to this before in Blender with geometry nodes, so it was achievable. A REST API could drive the current from real tidal data, and Ngaro sculptures could sit in the scene.</p>
+
+<figure class="wide">
+  <img src="images/concept-anemone.jpg" alt="Concept render of an underwater anemone display in a public space, with Blender geometry node tests alongside">
+  <figcaption>Anemone concept in the terminal, with the earlier Blender geometry-nodes tests it came from.</figcaption>
+</figure>
+
+<h3>Human flora and fauna</h3>
+
+<p>Inspired by Universal Everything's <em>Digital Twin</em>. Take skeletal data and build an amorphous mix of Whitsunday flora and fauna onto it: feathers, leaves, coastal driftwood, schools of fish, coral. Terminals are busy spaces, and people walking through become moving billboards for the ecology of the region.</p>
+
+<figure>
+  <img src="images/concept-flora-fauna.jpg" alt="Sketches of human figures made from plants, coral and foliage">
+  <figcaption>Sketch studies. Whitsunday ecology mapped onto a moving body.</figcaption>
+</figure>
+
+<h3>I heart reef</h3>
+
+<p>Aerial photography of the region already looks like dancing forms. This one uses a person's silhouette to morph the reef shapes with their body and motion.</p>
+
+<figure class="wide">
+  <img src="images/concept-heart-reef.jpg" alt="Concept sketch of a large reef display with human silhouettes interacting in front of it">
+  <figcaption>Silhouettes morphing reef shapes, sketched into the terminal.</figcaption>
+</figure>
+
+<p>The team responded most to this one, so it went forward. What was worth testing was less the effect than whether the interaction was actually engaging.</p>
+
+<hr>
+
+<p class="date">01.10.2026</p>
+<h2>Reef mapping to silhouette — proof of concept</h2>
+
+<p>Source data is <strong>AusBathyTopo (Great Barrier Reef)</strong>, a depth model from Geoscience Australia. The first version of the concept was a test of whether a person could be mapped to bathymetry as a silhouette, letting the same contour geometry read as both terrain and human form. It was promising but not enough.</p>
+
+<figure class="wide">
+  <img src="images/blender-displacement.jpg" alt="Blender node graph beside a displaced terrain showing a human form pushing into coastline">
+  <figcaption>Displacement test in Blender. Node setup left, result right.</figcaption>
+</figure>
+
+<p>The problem was not that the map could not be made to react. The problem was that the response was too generic. The human body was being pushed into the terrain as a literal silhouette, but without enough relief or enough local variance to feel like a physical interaction.</p>
+
+<figure class="pair">
+  <img src="images/silhouette.jpg" alt="A dark silhouette of a person with arms raised">
+  <img src="images/relief-islands.jpg" alt="Shaded relief render of the Whitsunday islands">
+  <figcaption>The silhouette source, and shaded relief off the bathymetry. All the visual interest is in the shallow sand, which decided the ramp later.</figcaption>
+</figure>
+
+<p>A softer gradient and a better understanding of the data resolved that. The key conceptual shift was from "pushing a silhouette into the terrain" to "accumulating motion as a brush over the seabed."</p>
+
+<p>This led to the water-parting mechanic and eventually the dwell-based reveal system.</p>
+
+<hr>
+
+<p class="date">06.10.2026</p>
+<h2>Understanding the data before calibrating against it</h2>
+
+<p>Understanding bathymetry was a deep dive into not only the data itself but right back to what a Vec4 is, and how RGB works versus a single Float32 band. The idea that metre values are stored on a <em>single band</em> as Float32 was genuinely foreign to me, and I could not calibrate anything against numbers I did not understand.</p>
+
+<p>A pixel is a container. If it is a <code>Vec4</code> it holds four numbers, and the numbers have no inherent meaning. What they become depends entirely on what reads them.</p>
+
+<blockquote>The same three numbers <code>[0.2, 0.4, 0.1]</code> are a mossy green if you plug them into light bulbs, and a position 20% right, 40% up and 10% forward if you plug them into a 3D room. The computer has no opinion about which.</blockquote>
+
+<figure class="pair">
+  <img src="images/pixel-sketch.jpg" alt="Hand-drawn diagram of a vec4 and a vec3 as trays of numbers, with notes on Float32">
+  <img src="images/float-pixel-inspector.jpg" alt="Comparison of how a 32-bit float TOP's values appear across four different TouchDesigner viewers">
+  <figcaption>Working it out on paper. Right: the same values through four different TouchDesigner viewers.</figcaption>
+</figure>
+
+<p>Most height maps use RGB to carry the same number three times, because all anyone wants out of them is a brightness. The bathymetry file is doing something different: one band, carrying an actual measurement in metres, as a float.</p>
+
+<h3>Why a single band can hold decimals and negatives</h3>
+
+<p>A Byte channel is eight bits, all magnitude. 0 to 255. No sign, no decimal point. A Float32 is thirty-two bits divided up as <strong>1 sign bit, 8 exponent bits and 23 mantissa bits</strong>, which gives roughly seven significant digits and a sign. That is why the raster can say −77.875 metres and a Byte image cannot.</p>
+
+<p>It also explains why QGIS showing me a greyscale picture is a <em>rendering</em> and not the file. A monitor can only emit 0–255 per channel, so QGIS maps the raster's min and max through a ramp to display it. The picture on screen and the data in the file are two different things.</p>
+
+<h3>The actual numbers in my crop</h3>
+
+<table>
+<tr><th>Property</th><th>Value</th></tr>
+<tr><td>Size</td><td>1071 × 486 cells = <strong>520,506 depth soundings</strong></td></tr>
+<tr><td>Format</td><td>Single band, Float32, 2.08 MB</td></tr>
+<tr><td>Range</td><td>−77.875 m to 445.070 m, mean −17.971</td></tr>
+<tr><td>Valid cells</td><td>100% (NoData −9999, none present)</td></tr>
+<tr><td>CRS</td><td>WGS84 EPSG:4326, pixel size 0.0003°</td></tr>
+</table>
+
+<p>TouchDesigner needs it as an image, so it gets converted to 0–255. <strong>78 metres across 255 levels is 0.306 m per level</strong>, which is finer than the original survey's own accuracy, so nothing real is lost in the conversion. Cropping tightly before export matters: the 255 levels get spent entirely on the range you keep. A crop that includes 445 m of mountain spends most of its levels on land nobody is looking at.</p>
+
+<hr>
+
+<p class="date">06.10.2026</p>
+<h2>What the Kinect is actually doing</h2>
+
+<p>I had assumed the Kinect sprays the room with infrared, times how long each photon takes to come back, builds a point cloud, and derives a skeleton from that geometry. About half right, and the half I had wrong turned out to matter for the design.</p>
+
+<p>The v2 is a <strong>time-of-flight</strong> sensor. It floods the scene with modulated infrared and measures the phase shift of the light coming back, which gives a distance per pixel across a 512×424 sensor. That is roughly 220,000 depth samples, thirty times a second.</p>
+
+<figure class="wide">
+  <img src="images/kinect-pointcloud-skeleton.jpg" alt="Depth point cloud of a room with a red skeleton solved onto a person and a green sphere marking a hand">
+  <figcaption>What the sensor gives you and what gets inferred from it. The point cloud is measured. The skeleton on top of it is not.</figcaption>
+</figure>
+
+<p>The part I had wrong is the skeleton. It is <strong>not</strong> derived geometrically from the point cloud. It is machine learning: every pixel of the depth image is classified as a body part by a model trained on roughly a million synthetic depth images of people, and the 25 joint positions are inferred from those labelled regions, at 30 fps.</p>
+
+<div class="note">
+<p><b>Why this changed a design decision.</b> A geometric solution either works or it does not. A learned one works best on poses that resemble its training data. That is why the skeleton flickers in unusual postures — and it means anyone whose posture sits outside that training distribution, including seated and wheelchair users, gets worse tracking for reasons that have nothing to do with whether the sensor can see them.</p>
+<p>This is the reasoning behind making presence rather than reaching the primary trigger, further down.</p>
+</div>
+
+<hr>
+
+<p class="date">07.10.2026</p>
+<h2>Getting circles onto wrists, which was four problems wearing a trenchcoat</h2>
+
+<p>Selecting the joints is easy. A Select CHOP pulls <code>hand_l</code>, <code>hand_r</code> and spine translation out of the Kinect CHOP's 76 channels, and a rename gives them workable names.</p>
+
+<figure class="pair">
+  <img src="images/chop-channels.jpg" alt="A CHOP channel list showing joint translation values as horizontal bars">
+  <img src="images/circles-network.jpg" alt="TouchDesigner network with merge, circle and level operators driving two tracking circles">
+  <figcaption>Raw channel values, and the chain: select, rename, split per axis, merge, into the Circle TOPs.</figcaption>
+</figure>
+
+<p>Drawing a circle at those values is where it fell apart. The circles tracked, roughly, but sat nowhere near the wrists and got worse as I moved. I spent a while assuming it was one bug. It was four, stacked.</p>
+
+<h3>1. Units</h3>
+
+<p>Kinect reports joints in <strong>metres, in 3D, measured from the sensor</strong>. A Circle TOP wants a <strong>fraction of the frame</strong>. Those are not the same kind of number and no amount of scaling fixes it if the conversion is not explicit.</p>
+
+<p>The conversion is the perspective divide. At distance <em>z</em>, half the frame width in metres is <code>tan(FOV/2) × z</code>. Kinect v2's horizontal field of view is 70.6°, so <code>tan(35.3°) = 0.709</code>, and half-width is <code>0.709z</code>. Divide the joint's x by that and you get a fraction of the frame that does not change when you walk backwards. Vertical FOV is 60°, so the vertical constant is <code>tan(30°) = 0.577</code>.</p>
+
+<h3>2. Origin</h3>
+
+<p>The sensor and the screen do not share a coordinate system, and the origin is not in the same place. The same joint can read "in front of the camera" while the comp expects it to be "in the middle of the screen". Each hop is a shift of 0.5.</p>
+
+<p>I proved which space the Circle TOP was in by setting Center X to a literal <code>0.5</code>. The circle sat half off the edge, so 0.5 is the <em>edge</em> and the space is ±0.5, not ±1.</p>
+
+<h3>3. Direction</h3>
+
+<p>A Kinect points in a different direction to the display's projected coordinate system. Axes may be flipped, mirrored or reversed. A hand moving right on the sensor is not necessarily moving right on screen.</p>
+
+<p>Flipping one axis is also where the Math CHOP let me down: its range applies to every channel in the stream, so there is no way to negate x and leave y alone. The chain has to split into <code>select_x</code> and <code>select_y</code>, apply a Math CHOP to each, then merge back.</p>
+
+<h3>4. Scale per axis</h3>
+
+<p>Perspective differences and aspect ratio mean the x and y axes are not interchangeable. x is a fraction of <em>width</em>, y a fraction of <em>height</em>. On a comp that is not square those are different distances in pixels, so any distance test has to divide dy by the aspect ratio first. Otherwise the region being tested is an ellipse while the circle being drawn is a circle.</p>
+
+<figure class="wide">
+  <img src="images/circles-wrists.jpg" alt="A silhouetted figure with a red circle on one wrist and a cyan circle on the other">
+  <figcaption>Working. Red on the right wrist, cyan on the left, holding position as the figure moves toward and away from camera.</figcaption>
+</figure>
+
+<p>The real lesson is that the problem was not "the coordinates are wrong". It was four separate coordinate-system mismatches that needed to be explained and fixed one by one.</p>
+
+<p>A key guard in the code was the use of <code>max()</code> to stop <code>z</code> values from accidentally going near zero on dropped frames, which would otherwise blow up the divide and send the circle off screen.</p>
+
+<figure class="wide">
+  <img src="images/textport-debug.jpg" alt="TouchDesigner Textport filled with errors beside the comp showing tracking circles">
+  <figcaption>The Textport became the fastest debugging tool in TouchDesigner. It was the only place raw values could be inspected quickly enough to separate logic problems from coordinate problems.</figcaption>
+</figure>
+
+<hr>
+
+<p class="date">08.10.2026</p>
+<h2>What the interaction is actually about</h2>
+
+<p>The sculpture trail was on the research list from week five, and so was a line I did not pay enough attention to at the time: <em>"Research local Ngaro/Gia opinions of the sculptures."</em> The team identified the cultural question in the first fortnight. I will come back to what happened to it.</p>
+
+<p>Looking up where the sculptures actually are, they are more clustered than I assumed: the <strong>Ngaro Underwater Marine Sculpture Trail</strong> sits mostly in and around Hook Island. <em>Migration of the Mantas</em> and <em>Manta Ray</em> at Manta Ray Bay, <em>Maori Wrasse</em> and <em>Anthozoa</em> at Blue Pearl Bay off Hayman Island, <em>Turtle Dream</em> at Langford Spit. <em>Bywa</em> is at Horseshoe Bay in Bowen, outside the crop.</p>
+
+<figure class="wide">
+  <img src="images/sculpture-map.jpg" alt="Map of the Hook Island area with the sculpture trail locations and a coral growth site marked">
+  <figcaption>The trail mapped. Zooming the prototype to this cluster spaces the finds out and leaves room for restoration sites alongside the artworks.</figcaption>
+</figure>
+
+<p>Zooming the prototype map in on that cluster spaces the finds out properly, and it leaves room to include <strong>Reef Ecologic's WRAP</strong> coral restoration sites alongside the artworks — what is being planted and grown, not just what has been installed.</p>
+
+<p>That shifts what the interaction is for. Reef health in the Whitsundays is an economic question as much as an environmental one, because the regional tourism economy is built on the reef being worth visiting. Surfacing restoration work next to the artworks ties the display to <strong>SDG 14, Life Below Water</strong>, rather than leaving it as a map of sculptures.</p>
+
+<figure class="wide">
+  <img src="images/sculpture-aerials.jpg" alt="Aerial and satellite photographs of the sculpture sites and surrounding reef">
+  <figcaption>Source material for the locations. Exact positions are published on tourism sites.</figcaption>
+</figure>
+
+<p>A later extension worth noting: if the find is "the manta ray", the payoff could be real tagged manta ray data in the Whitsundays, the way a shark tracker works.</p>
+
+<hr>
+
+<p class="date">08.10.2026</p>
+<h2>The Midas touch problem, and dwell as the answer</h2>
+
+<p>The obvious way to trigger a find is proximity: hand over sculpture, sculpture fires. The obvious way is wrong, and it has a name. The <strong>Midas touch problem</strong> is well documented in gaze and gesture interfaces — if looking at something selects it, you select everything you look at. A hand sweeping across the map would trigger every sculpture it crossed.</p>
+
+<p>The standard answer is <strong>dwell</strong>, and that is what I have used. It is established HCI rather than something I invented, and it is worth saying so.</p>
+
+<p>Each sculpture has an accumulator. While a hand overlaps it, the accumulator fills. When the hand leaves, it drains — <strong>twice as fast as it fills</strong>, so a hand passing through does not leave a half-charged target sitting there waiting to be nudged over the line. At one second to fill, running at 60 fps, that is <code>dt / DWELL</code> per frame.</p>
+
+<h3>Making distance matter without making it a gate</h3>
+
+<p>The hand circle's radius is itself distance-dependent, because it goes through the same perspective divide. Stand at the right distance and the hand circle matches the target's radius. I wanted that match to <em>matter</em>, because it gives the interaction something to learn, but I did not want it to be a gate.</p>
+
+<p>So the fill rate is:</p>
+
+<pre><code>rate = MIN_RATE + (1.0 - MIN_RATE) * match    # MIN_RATE = 0.25</code></pre>
+
+<p>Perfect distance fills in a second. Badly wrong distance fills in four. The floor never reaches zero, so nobody can do everything right and get no response at all with no explanation of why. And because the fill visibly speeds up as you find the sweet spot, the mechanic teaches itself without any instructions on screen.</p>
+
+<figure class="wide">
+  <img src="images/progress-expressions.jpg" alt="Circle TOP parameters showing radius and fill alpha expressions driven by the sculptures table">
+  <figcaption>Radius and Fill Alpha driven off the <code>progress</code> and <code>contact</code> columns, so the circle grows and brightens as the accumulator fills.</figcaption>
+</figure>
+
+<hr>
+
+<p class="date">09.10.2026</p>
+<h2>Everything triggering at once</h2>
+
+<p>First symptom was every sculpture charging whenever a hand was anywhere near the cluster. My first guess was that <code>HAND_SIZE</code> at 0.15 was simply too large. Lowering it did not help, which was the useful information — a radius that is too big produces <em>more</em> hits, but it does not produce hits on targets the hand is nowhere near.</p>
+
+<p>Two separate causes.</p>
+
+<p><strong>Visual.</strong> The Circle TOPs had their Center expressions updated to their own table row, but Radius and Fill Alpha were still pointing at row 1. Every circle was reading one sculpture's progress, so they all grew together regardless of what the logic was doing. A wiring error dressed up as a logic error.</p>
+
+<p><strong>Logical.</strong> The hit test genuinely did charge every target within range. Fixed with a claim pass: each hand looks at every target, keeps only the <em>nearest</em> one it overlaps, and only that one charges. With two hands, two claims, and the highest rate wins per row.</p>
+
+<pre><code>for row, tx, ty, tr in targets:
+    dx = hx - tx
+    dy = (hy - ty) / aspect
+    dist = (dx*dx + dy*dy) ** 0.5
+    if dist &lt; tr + hr and dist &lt; claim_dist:
+        claim_row, claim_dist = row, dist</code></pre>
+
+<figure class="wide">
+  <img src="images/hit-logic-network.jpg" alt="TouchDesigner network with the hit logic script, the sculptures table and the tracking comp">
+  <figcaption>The whole mechanic. Table DAT of sculptures with <code>progress</code> and <code>contact</code> columns, the script that writes them, and the comp it drives.</figcaption>
+</figure>
+
+<p>I also added a <code>cell()</code> wrapper around every table read, because a blank cell in a half-filled row returns <code>None</code>, <code>float(None)</code> throws, and one bad row kills the callback for the entire frame. Returning a default is the difference between a wrong number and a dead interaction.</p>
+
+<p>A TouchDesigner trap worth recording: the Execute DAT callback file must be at module level. A nested function inside <code>onFrameStart</code> silently kills every callback in that file rather than producing a visible error.</p>
+
+<hr>
+
+<p class="date">11.10.2026</p>
+<h2>Water, and avoiding the cheap ripple</h2>
+
+<p>Looking at stylised water approaches rather than a plain ripple, which to my eye always reads as cheap. Derivative's <strong>WaveTOP</strong> is an implementation of the wave equation in TOPs alone, no custom GLSL, producing a heightmap that can displace a grid.</p>
+
+<p>What I ended up liking more was <strong>feedback and decay</strong>, which creates a trail of motion rather than a wavefront. That fits the accumulation idea from the Blender tests better than a simulation does, and it is the only way a stateless system remembers anything.</p>
+
+<figure class="wide">
+  <img src="images/feedback-decay.jpg" alt="A chain of TouchDesigner operators showing two circles smearing into a decaying trail">
+  <figcaption>Feedback and decay. Circles leave a trail that fades, which is what carves the water.</figcaption>
+</figure>
+
+<p>This became the carved-water effect: circles leave a trail that fades, and the water reveals or covers the terrain beneath.</p>
+
+<figure class="wide">
+  <img src="images/water-carve-chain.jpg" alt="TouchDesigner network for the water carve: blur, reorder, premultiply and composite into sand and water layers">
+  <figcaption>The carve chain. Mask left, Reorder writing it into the water layer's alpha, Premultiply, then Over.</figcaption>
+</figure>
+
+<p>Worth flagging for anyone else: a Feedback TOP needs an explicit Custom resolution. Leaving it on Use Input creates a circular dependency and you get a checkerboard rather than an error.</p>
+
+<hr>
+
+<p class="date">14.10.2026</p>
+<h2>A manta ray that refused to be lit</h2>
+
+<p>Imported the manta ray FBX and it rendered pure black. Overrode the material, added a light, checked the normals in TouchDesigner, no change.</p>
+
+<p>It was the mesh. Floating vertices and ngons. Cleaning the topology and recalculating outer normals in Blender fixed it immediately. The time went into assuming the problem was in the renderer when it was in the asset.</p>
+
+<figure class="wide">
+  <img src="images/mantaray-blender.jpg" alt="The manta ray model in Blender, lit against a teal background">
+  <figcaption>Back in Blender to clean the topology. Normals recalculated and it lit correctly everywhere.</figcaption>
+</figure>
+
+<p>Two TouchDesigner notes from the same session. FBX import wants <strong>Y up, −Z forward</strong>, and the material override lives on the <strong>Advanced</strong> tab, not where I first went looking.</p>
+
+<figure class="pair">
+  <img src="images/mantaray-network.jpg" alt="TouchDesigner network with the manta ray geometry, camera, light and render TOP">
+  <img src="images/mantaray-rotation.jpg" alt="Transform parameters on the manta ray with an absTime expression driving rotation">
+  <figcaption>Render chain, background alpha at zero so it composites. Right: <code>absTime.seconds * 20</code> on the rotation.</figcaption>
+</figure>
+
+<p>A bob on Translate Y needs <code>math.sin()</code> rather than bare <code>sin()</code>, because parameter expressions do not have the bare maths functions in scope.</p>
+
+<hr>
+
+<p class="date">19.10.2026</p>
+<h2>Exporting a picture of the data instead of the data</h2>
+
+<p>This is the mistake that cost me the most time, and the output looked completely fine.</p>
+
+<p>I clipped the bathymetry to the Hook Island area in QGIS and exported it. The result came back with <strong>four Byte bands</strong>. I had exported the <em>Rendered</em> layer — the colour image QGIS draws on screen — rather than the raw values. Every depth reading had been pushed through a colour ramp into 0–255 RGB and the elevation data was gone. The file opened, it looked like a height map, and it was meaningless.</p>
+
+<blockquote>Export the data, not a picture of the data.</blockquote>
+
+<figure class="wide">
+  <img src="images/qgis-bathymetry.jpg" alt="QGIS showing the clipped bathymetry around Hook Island as a greyscale depth image">
+  <figcaption>The clip in QGIS. What you see is a rendering of the Float32 values, which is exactly the thing I then exported by mistake.</figcaption>
+</figure>
+
+<p>Related: <strong>Clip Raster by Extent</strong> defaults NoData to 2.0, which quietly contaminates the range of anything you clip with it.</p>
+
+<p>Doing it properly, straight from the QGIS Python console:</p>
+
+<pre><code>from osgeo import gdal
+gdal.Translate(
+    "seabed_8.png", "OUTPUT.tif",
+    format="PNG", outputType=gdal.GDT_Byte,
+    scaleParams=[[-78, 0, 0, 255]],
+    width=1071, height=515)</code></pre>
+
+<p>And a second pass at the waterline to get a clean land mask:</p>
+
+<pre><code>gdal.Translate(
+    "land_mask.png", "OUTPUT.tif",
+    format="PNG", outputType=gdal.GDT_Byte,
+    scaleParams=[[-0.01, 0.01, 0, 255]],
+    width=1071, height=515)</code></pre>
+
+<figure class="pair">
+  <img src="images/seabed-8bit.jpg" alt="Greyscale seabed depth map, 8-bit, clamped to the water range">
+  <img src="images/land-mask.jpg" alt="Pure black and white land mask of the islands">
+  <figcaption>The two exports. Seabed clamped to −78 m to 0, and a hard land mask from clipping a sliver either side of the waterline.</figcaption>
+</figure>
+
+<p>The clamp to −78 to 0 is deliberate: it discards above-sea-level terrain so the 255 levels are spent on water depth rather than irrelevant land masses. The source is also corrected for aspect ratio so the output is not stretched by longitude compression.</p>
+
+<p>One trap on the way in. <code>seabed_8.png</code> came into TouchDesigner and the Lookup produced no colour at all, just grey. I assumed it was a bit depth problem. It was not — the Movie File In's <strong>Pixel Format</strong> was on "Use Input", the PNG is single-channel greyscale, so <strong>Mono</strong> propagated down the whole chain. Mono has no colour channels and no alpha, so the Lookup had nowhere to write a colour. Setting the format explicitly to <strong>8-bit RGBA</strong> fixed it instantly. I had been reasoning about the data when the problem was in the container.</p>
+
+<figure class="wide">
+  <img src="images/lookup-network.jpg" alt="TouchDesigner network with a ramp, the land mask, a lookup and a composite">
+  <figcaption>Ramp into Lookup, land mask into the comp. Once the pixel format was right this took about ten minutes.</figcaption>
+</figure>
+
+<hr>
+
+<p class="date">22.10.2026</p>
+<h2>The Kinect died, and the architecture held</h2>
+
+<p>The Kinect Fin supplied would not play with my laptop. Late in the piece, not enough time to troubleshoot it properly, and a genuine shame because the hardware is good and it is already in the Whitsundays.</p>
+
+<p>Swapping to MediaPipe took an afternoon rather than a rebuild, and that is the part worth recording. The entire interaction runs off one constant at the top of the script:</p>
+
+<pre><code>SOURCE = 'mediapipe'     # 'kinect' or 'mediapipe'</code></pre>
+
+<p>Everything downstream — hit detection, the accumulator, the reveal, the comp — is written against normalised screen space. Only one function, <code>hand_screen()</code>, knows which sensor is running, and it returns the same three numbers either way: x, y, radius, in centre-space.</p>
+
+<p>That was not foresight exactly. It fell out of the coordinate work two weeks earlier. Once I had been forced to be explicit about which space every number lived in, supporting a second source was a matter of writing one more conversion rather than changing anything that consumed it.</p>
+
+<p>Worth connecting to the 2032 window. Any sensor I choose now is obsolete before the thing is installed. The part of this build with a six-year shelf life is not the Kinect and not MediaPipe, it is the boundary between them and everything else.</p>
+
+<h3>Two things MediaPipe does not give you</h3>
+
+<p><strong>No spine, and no metric depth.</strong> MediaPipe's 33 landmarks include a <code>z</code>, but it is relative to the hip midpoint and is not in metres, so it cannot drive the size-match mechanic the way the Kinect's <code>z</code> could.</p>
+
+<p>The substitute is <strong>shoulder span in image space</strong>. Distance between the two shoulder landmarks: wide means close to the camera, narrow means far away. Not metric either, but monotonic and stable, which is all the mechanic actually needs. A <code>calib()</code> helper prints the right <code>HAND_FRAC</code> after standing at the distance I want to be the sweet spot.</p>
+
+<p><strong>Already normalised.</strong> MediaPipe reports 0–1 in image space, so there is no perspective divide at all on that path — just the 0.5 origin shift and the sign flips. Both axes came out inverted on the first run and both were a plain subtraction.</p>
+
+<hr>
+
+<p class="date">23.10.2026</p>
+<h2>Inclusive design, written down properly</h2>
+
+<p>These decisions have been driving the build for a fortnight and have never made it into the journal, so here they are.</p>
+
+<h3>Presence before reaching</h3>
+
+<p>Follows directly from what the skeleton actually is. It is a learned model, not geometry, and a learned model performs best on poses resembling its training data. Seated users, wheelchair users, people with restricted arm movement and people standing in a queue holding a bag all sit further from that training distribution, and they get worse tracking for reasons that have nothing to do with whether the sensor can see them.</p>
+
+<p>So reaching with a hand cannot be the only way in. <strong>Torso proximity triggers; reaching enhances.</strong> Two routes to the same payoff, and the fallback is the more reliable of the two rather than a degraded version.</p>
+
+<h3>Soft gating, not hard gating</h3>
+
+<p><code>MIN_RATE</code> never reaching zero means nobody can do everything right and receive no response, with no way of knowing why. A hard distance gate would have been easier to implement and would silently exclude people.</p>
+
+<h3>No faces, nothing stored</h3>
+
+<p>The system works from joint positions and shapes. It does not identify anyone, does not do face recognition, and retains nothing between frames except an accumulator that drains to zero. In a public terminal with a camera pointed at travellers, that is a position worth stating rather than leaving implicit.</p>
+
+<p>This is also the cheaper option, which is usually how privacy decisions should be framed when you are arguing for them.</p>
+
+<div class="note">
+<p><b>On SDGs.</b> Two are doing real work here rather than being listed. <b>SDG 14, Life Below Water</b> — the display surfaces reef restoration sites alongside the artworks, so the content is about reef recovery and not only about sculpture. <b>SDG 11, Sustainable Cities and Communities</b> — the accessibility decisions above are the evidence, in a piece of public infrastructure that people encounter whether or not they sought it out.</p>
+</div>
+
+<hr>
+
+<p class="date">24.10.2026</p>
+<h2>Presentation and demo</h2>
+
+<p>Built the explainer material for the team presentation: the slides for the technical section, a screen capture of the interaction running, and stills from the comp.</p>
+
+<p>The demo was the strongest thing in the presentation, which is worth noting because it is the only part where the audience sees the thing work rather than being told about it. Everything else is renders and mock-ups.</p>
+
+<div class="slot"><div><b>Video slot</b>Screen capture of the working sculpture finder. Drop the MP4 in here as a <code>&lt;video controls&gt;</code> tag, or embed it from wherever it is hosted.</div></div>
+
+<p>Reviewing the recording afterwards, two clear lessons for next time. I was 12 to 16 dB quieter than the other presenters, which is audible and costs the content credibility it had earned. And I talked continuously for seventy seconds over the demo, which is exactly the stretch where the audience is trying to watch something new and listen at the same time. Set it running, say one sentence, then be quiet for five seconds.</p>
+
+<hr>
+
+<h2>Where it stands</h2>
+
+<figure class="wide">
+  <img src="images/full-comp.jpg" alt="The full TouchDesigner composite network with the finished turquoise map output">
+  <figcaption>The finished comp. Sand and depth-tinted water off the same raster, refraction from two offset noises, sculptures composited underneath.</figcaption>
+</figure>
+
+<p><strong>Working:</strong> joint tracking from either sensor, hand circles mapped correctly into screen space, dwell-based find with winner-takes-all targeting, water carve over a real bathymetric seabed, a water layer with noise-driven refraction, sculpture reveal with the manta ray model, labels on find.</p>
+
+<p><strong>Known limitations, honestly:</strong></p>
+
+<ul>
+  <li><strong>No community engagement beyond Council as client</strong> and published material from Reef Ecologic and tourism operators. Real engagement would mean Reef Ecologic, airport operations, and travellers.</li>
+  <li><strong>No Ngaro or Gia consultation.</strong> This prototype uses Ngaro-named sculptures and Ngaro cultural context, built entirely from publicly available material. The task <em>"research local Ngaro/Gia opinions of the sculptures"</em> was written into our week five plan and was never completed by anyone, me included. Cultural approval is a gate before any public deployment, not a step we have taken.</li>
+  <li><strong>Legacy undecided.</strong> Does the display come out after the Games or stay? That one question answers the sustainability and maintenance ones at the same time — who powers it, who keeps the sculpture and restoration data current, and whether it is built for a fortnight or a decade.</li>
+  <li><strong>No accessibility testing with actual seated users.</strong> The reasoning above is sound but it is reasoning, not evidence.</li>
+  <li><strong>Aspect ratio unresolved.</strong> The map is 2.08:1 and the comp is 1.21:1, so the sculpture coordinates and the composition do not yet line up cleanly.</li>
+  <li><strong>Visuals could be expanded.</strong> The water is a displace driven by a noise normal, which worked well enough for the deliverable. A foam ring at the carve edge and a depth-tinted ramp were both scoped and neither was built.</li>
+</ul>
+
+<p>Two things I would do differently. I would have put the inclusive design reasoning in writing weeks earlier, because it was driving decisions long before it was documented. And I would have tested the Kinect on my own machine in week five rather than week eleven.</p>
+
+<p>The thing I will carry out of this is smaller and more useful than I expected. Most of the hard problems here were not interaction problems, they were problems of knowing which space a number was in. Metres or fractions, which origin, which direction, which axis. Once that was explicit, the sensor swap, the hit detection and the compositing all got easier, and the one afternoon where the hardware failed and the system did not care paid back every hour spent on it.</p>
+
+<hr>
+
+<h2>References and sources</h2>
+
+<ul class="refs">
+  <li>Geoscience Australia. (2017). <em>AusBathyTopo (Great Barrier Reef) 30 m 2017 — a regional-scale depth model</em> (20170025C). <a href="https://ecat.ga.gov.au/geonetwork/srv/api/records/0f4e635c-81ec-46d0-9c99-65e5fe0b8c01?language=eng">ecat.ga.gov.au</a></li>
+  <li>Shedroff, N. Interactivity in the context of designed experiences. <em>Journal of Interactive Advertising</em>. <a href="https://www.tandfonline.com/doi/full/10.1080/15252019.2000.10722040">tandfonline.com</a></li>
+  <li>teamLab. <em>teamLab Planets</em>. <a href="https://www.teamlab.art/e/planets/">teamlab.art</a></li>
+  <li>Universal Everything. <a href="https://www.universaleverything.com/">universaleverything.com</a></li>
+  <li>INDE. <em>INDE's AR makes waiting for your baggage fun</em>.</li>
+  <li>Torin Blankensmith — interactive and MediaPipe work.</li>
+  <li>bileam tschepe (elekktronaut) and Josef Pelz — TouchDesigner technique.</li>
+  <li>Reef Ecologic. <em>Whitsundays Reef Recovery and Public Art Project (WRAP)</em>. <a href="https://reefecologic.org/project/wrap/">reefecologic.org</a></li>
+  <li>Sailing Whitsundays. <em>Ngaro Underwater Marine Sculpture Trail, Whitsundays</em>. <a href="https://sailing-whitsundays.com/article/Ngaro-Underwater-Marine-Sculpture-Trail-Whitsundays">sailing-whitsundays.com</a></li>
+  <li>Australian Sailing. (2025). <em>Australian Sailing welcomes outcome of Brisbane Olympics 100 Day Review</em>. <a href="https://www.sailing.org.au/news/australian-sailing-welcomes-outcome-of-100-day-review">sailing.org.au</a></li>
+  <li>ABC News. (2025, 25 March). <em>Brisbane 2032 Olympic Games venues</em>. <a href="https://www.abc.net.au/news/2025-03-25/brisbane-2032-olympic-games-venue-list/105090254">abc.net.au</a></li>
+  <li>Derivative. <em>WaveTOP</em>. <a href="https://derivative.ca/community-post/asset/wavetop/67796">derivative.ca</a></li>
+  <li>QGIS Project. <em>QGIS Desktop</em>. <a href="https://qgis.org/download/">qgis.org</a></li>
+</ul>
+
+<h2>Use of AI</h2>
+
+<ul>
+  <li><strong>Learning.</strong> Working out how Float32 rasters, pixel formats and time-of-flight sensing actually function. The pixel-as-container model and the four-coordinate-mismatch framing came out of those conversations and I have written both up in my own words here.</li>
+  <li><strong>Debugging.</strong> Diagnosing the perspective divide, the mirrored axis, the aspect-ratio mismatch and the Mono pixel format trap.</li>
+  <li><strong>Previsualisation.</strong> The lighting pass on the greybox terminal render.</li>
+  <li><strong>Hit logic.</strong> Claude 5.0 wrote the hit logic.</li>
+  <li><strong>Converting this journal</strong> from Markdown to HTML.</li>
+</ul>
+
+<footer>
+  <p><strong>Whitsunday in Motion</strong> — BCI304, University of the Sunshine Coast, 2026. Interaction design, TouchDesigner build and technical documentation by Matt Bissell. Project team: Dylan Pollard, Thomas Grannes, Matthew Oliver, Alex Luc. Supervisor: Fin. Partner: Whitsunday Regional Council.</p>
+  <p>Bathymetry © Commonwealth of Australia (Geoscience Australia). Sculpture trail and restoration information courtesy of Reef Ecologic and Tourism Whitsundays.</p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,197 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 700" width="1180" height="700" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" role="img" aria-labelledby="t d">
+<title id="t">Sculpture Finder — signal flow</title>
+<desc id="d">Two tracks. The person is sensed, normalised into screen space and used to decide which sculpture is being held over. The map is built from bathymetry into sand, water and sculpture layers. The two tracks meet at the carve, where the hand trail cuts a hole in the water.</desc>
+
+<style>
+  :root{ color-scheme: light dark; }
+  .bg   { fill:#fbfaf8; }
+  .pnl  { fill:#f2efe9; stroke:#ded8cd; stroke-width:1; }
+  .box  { fill:#ffffff; stroke:#cfc8bb; stroke-width:1; }
+  .acc  { fill:#e4efef; stroke:#9bc3c4; stroke-width:1; }
+  .ttl  { fill:#1f6f72; font-size:12px; font-weight:700; letter-spacing:.13em; }
+  .lbl  { fill:#1b1a18; font-size:12.5px; font-weight:600; }
+  .sub  { fill:#6a665f; font-size:10.5px; }
+  .note { fill:#6a665f; font-size:10.5px; font-style:italic; }
+  .hd   { fill:#1b1a18; font-size:17px; font-weight:600; }
+  .hs   { fill:#6a665f; font-size:11.5px; }
+  .ln   { stroke:#9a958c; stroke-width:1.4; fill:none; }
+  .lnd  { stroke:#9a958c; stroke-width:1.4; fill:none; stroke-dasharray:4 3; }
+  .lna  { stroke:#1f6f72; stroke-width:1.8; fill:none; }
+  .rule { stroke:#ded8cd; stroke-width:1; }
+  .ah   { fill:#9a958c; }
+  .aha  { fill:#1f6f72; }
+  @media (prefers-color-scheme: dark){
+    .bg  { fill:#15161a; }
+    .pnl { fill:#1d1f24; stroke:#2c2e34; }
+    .box { fill:#23262c; stroke:#383c44; }
+    .acc { fill:#1b2e30; stroke:#3d6b6d; }
+    .ttl { fill:#6fc2c4; }
+    .lbl { fill:#e6e3dd; }
+    .sub,.note,.hs { fill:#9a958c; }
+    .hd  { fill:#e6e3dd; }
+    .ln,.lnd { stroke:#6b6760; }
+    .lna { stroke:#6fc2c4; }
+    .rule{ stroke:#2c2e34; }
+    .ah  { fill:#6b6760; }
+    .aha { fill:#6fc2c4; }
+  }
+</style>
+
+<defs>
+  <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0 0 L10 5 L0 10 z" class="ah"/>
+  </marker>
+  <marker id="aa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0 0 L10 5 L0 10 z" class="aha"/>
+  </marker>
+</defs>
+
+<rect class="bg" x="0" y="0" width="1180" height="700"/>
+
+<text class="hd" x="40" y="42">Sculpture Finder — signal flow</text>
+<text class="hs" x="40" y="62">MediaPipe build. Boxes are groups of operators, not individual nodes. Comp runs at 1071 × 515.</text>
+<line class="rule" x1="40" y1="78" x2="1140" y2="78"/>
+
+<!-- ================= TRACK A : THE PERSON ================= -->
+<text class="ttl" x="40" y="106">THE PERSON</text>
+
+<!-- panel 1 -->
+<rect class="pnl" x="40" y="118" width="268" height="172" rx="6"/>
+<text class="ttl" x="56" y="140">1 · SENSE</text>
+<rect class="box" x="56" y="152" width="236" height="36" rx="4"/>
+<text class="lbl" x="68" y="168">Webcam</text>
+<text class="sub" x="68" y="182">videodevin1</text>
+<rect class="box" x="56" y="196" width="236" height="36" rx="4"/>
+<text class="lbl" x="68" y="212">MediaPipe</text>
+<text class="sub" x="68" y="226">33 landmarks, normalised 0–1</text>
+<rect class="box" x="56" y="240" width="236" height="36" rx="4"/>
+<text class="lbl" x="68" y="256">select / rename → merge_joints</text>
+<text class="sub" x="68" y="270">wrists and shoulders only</text>
+
+<!-- panel 2 -->
+<rect class="pnl" x="344" y="118" width="268" height="172" rx="6"/>
+<text class="ttl" x="360" y="140">2 · NORMALISE</text>
+<rect class="acc" x="360" y="152" width="236" height="52" rx="4"/>
+<text class="lbl" x="372" y="170">hand_screen()</text>
+<text class="sub" x="372" y="185">the only function that knows</text>
+<text class="sub" x="372" y="197">which sensor is running</text>
+<rect class="box" x="360" y="212" width="236" height="32" rx="4"/>
+<text class="sub" x="372" y="232">x, y → ±0.5 centre-space</text>
+<rect class="box" x="360" y="250" width="236" height="32" rx="4"/>
+<text class="sub" x="372" y="270">shoulder span → hand radius</text>
+
+<!-- panel 3 -->
+<rect class="pnl" x="648" y="118" width="492" height="172" rx="6"/>
+<text class="ttl" x="664" y="140">3 · DECIDE</text>
+<rect class="box" x="664" y="152" width="230" height="36" rx="4"/>
+<text class="lbl" x="676" y="168">nearest target per hand</text>
+<text class="sub" x="676" y="182">winner takes all</text>
+<rect class="box" x="664" y="196" width="230" height="36" rx="4"/>
+<text class="lbl" x="676" y="212">dwell accumulator</text>
+<text class="sub" x="676" y="226">fills 1 s, drains at 2×</text>
+<rect class="box" x="664" y="240" width="230" height="36" rx="4"/>
+<text class="lbl" x="676" y="256">size match → fill rate</text>
+<text class="sub" x="676" y="270">floor 0.25, never a hard gate</text>
+
+<rect class="acc" x="910" y="152" width="214" height="124" rx="4"/>
+<text class="lbl" x="922" y="170">sculptures</text>
+<text class="sub" x="922" y="186">Table DAT · 6 rows</text>
+<text class="sub" x="922" y="206">name  x  y  r</text>
+<text class="sub" x="922" y="222">progress  contact</text>
+<line class="rule" x1="922" y1="234" x2="1112" y2="234"/>
+<text class="note" x="922" y="250">hit_logic writes here</text>
+<text class="note" x="922" y="264">every frame, via execute1</text>
+
+<!-- track A arrows -->
+<line class="ln" x1="308" y1="204" x2="338" y2="204" marker-end="url(#a)"/>
+<line class="ln" x1="612" y1="204" x2="642" y2="204" marker-end="url(#a)"/>
+<line class="ln" x1="894" y1="204" x2="904" y2="204" marker-end="url(#a)"/>
+<line class="lnd" x1="908" y1="224" x2="898" y2="224" marker-end="url(#a)"/>
+
+<!-- ================= TRACK B : THE PICTURE ================= -->
+<text class="ttl" x="40" y="344">THE PICTURE</text>
+
+<!-- panel 4 source -->
+<rect class="pnl" x="40" y="356" width="236" height="232" rx="6"/>
+<text class="ttl" x="56" y="378">4 · SOURCE</text>
+<rect class="box" x="56" y="390" width="204" height="48" rx="4"/>
+<text class="lbl" x="68" y="406">AusBathyTopo 30 m</text>
+<text class="sub" x="68" y="420">Float32 GeoTIFF, cropped</text>
+<text class="sub" x="68" y="432">in QGIS, clamped −78 m → 0</text>
+<rect class="box" x="56" y="446" width="204" height="32" rx="4"/>
+<text class="sub" x="68" y="466">seabed_8.png · 8-bit RGBA</text>
+<rect class="box" x="56" y="486" width="204" height="32" rx="4"/>
+<text class="sub" x="68" y="506">land_mask.png</text>
+<rect class="box" x="56" y="526" width="204" height="32" rx="4"/>
+<text class="sub" x="68" y="546">mantaray FBX · Y up, −Z fwd</text>
+<text class="note" x="56" y="574">Both PNGs are derived images, not the data.</text>
+
+<!-- panel 5 layers -->
+<rect class="pnl" x="312" y="356" width="268" height="232" rx="6"/>
+<text class="ttl" x="328" y="378">5 · LAYERS</text>
+<rect class="box" x="328" y="390" width="236" height="36" rx="4"/>
+<text class="lbl" x="340" y="406">Sand</text>
+<text class="sub" x="340" y="420">lookup + sand ramp</text>
+<rect class="box" x="328" y="434" width="236" height="36" rx="4"/>
+<text class="lbl" x="340" y="450">Land</text>
+<text class="sub" x="340" y="464">re_order → reorder1 → premultiply</text>
+<rect class="box" x="328" y="478" width="236" height="36" rx="4"/>
+<text class="lbl" x="340" y="494">Sculpture</text>
+<text class="sub" x="340" y="508">render1 → math1 → level1 → transform1</text>
+<rect class="box" x="328" y="522" width="236" height="36" rx="4"/>
+<text class="lbl" x="340" y="538">Water colour</text>
+<text class="sub" x="340" y="552">lookup3 + ramp4</text>
+<text class="note" x="328" y="574">Sand and water both come off the one raster.</text>
+
+<!-- panel 6 carve -->
+<rect class="pnl" x="616" y="356" width="246" height="232" rx="6"/>
+<text class="ttl" x="632" y="378">6 · CARVE</text>
+<rect class="box" x="632" y="390" width="214" height="32" rx="4"/>
+<text class="sub" x="644" y="410">circ_hand_l / r → comp_hands</text>
+<rect class="box" x="632" y="430" width="214" height="32" rx="4"/>
+<text class="sub" x="644" y="450">blur_hands</text>
+<rect class="acc" x="632" y="470" width="214" height="46" rx="4"/>
+<text class="lbl" x="644" y="488">comp_accum ⟲ fb_loop</text>
+<text class="sub" x="644" y="504">feedback, custom res — the only memory</text>
+<rect class="box" x="632" y="524" width="214" height="34" rx="4"/>
+<text class="sub" x="644" y="538">level_decay → limit1 → level_invert</text>
+<text class="sub" x="644" y="552">= carve mask</text>
+<text class="note" x="632" y="574">Trail fades, so the water closes behind you.</text>
+
+<!-- panel 7 composite -->
+<rect class="pnl" x="898" y="356" width="242" height="232" rx="6"/>
+<text class="ttl" x="914" y="378">7 · COMPOSITE</text>
+<rect class="box" x="914" y="390" width="210" height="36" rx="4"/>
+<text class="lbl" x="926" y="406">Refraction</text>
+<text class="sub" x="926" y="420">wn_a + wn_b → displace1</text>
+<rect class="box" x="914" y="434" width="210" height="36" rx="4"/>
+<text class="lbl" x="926" y="450">Water over sand</text>
+<text class="sub" x="926" y="464">carved by the mask</text>
+<rect class="box" x="914" y="478" width="210" height="36" rx="4"/>
+<text class="lbl" x="926" y="494">Markers</text>
+<text class="sub" x="926" y="508">6 Circle TOPs → comp1</text>
+<rect class="acc" x="914" y="522" width="210" height="36" rx="4"/>
+<text class="lbl" x="926" y="538">comp4 → null1 → out</text>
+<text class="sub" x="926" y="552">1071 × 515</text>
+<text class="note" x="914" y="574">Premultiply before every Over.</text>
+
+<!-- track B arrows -->
+<line class="ln" x1="276" y1="470" x2="306" y2="470" marker-end="url(#a)"/>
+<line class="ln" x1="580" y1="470" x2="610" y2="470" marker-end="url(#a)"/>
+<line class="ln" x1="862" y1="470" x2="892" y2="470" marker-end="url(#a)"/>
+
+<!-- cross links -->
+<path class="lna" d="M739 290 L739 384" marker-end="url(#aa)"/>
+<text class="note" x="748" y="330">hand positions</text>
+<text class="note" x="748" y="344">drive the carve</text>
+
+<path class="lna" d="M1017 290 L1017 350" marker-end="url(#aa)"/>
+<text class="note" x="1026" y="312">progress drives marker</text>
+<text class="note" x="1026" y="326">size and brightness</text>
+
+<!-- footer -->
+<line class="rule" x1="40" y1="622" x2="1140" y2="622"/>
+<text class="sub" x="40" y="644">The sensor is isolated in box 2. Everything right of it works in normalised screen space, so switching between MediaPipe and</text>
+<text class="sub" x="40" y="660">Kinect is one constant at the top of hit_logic.py — SOURCE = 'mediapipe' | 'kinect' — and nothing downstream changes.</text>
+<text class="sub" x="40" y="682">Whitsunday in Motion · BCI304 · Matt Bissell · 2026</text>
+</svg>
