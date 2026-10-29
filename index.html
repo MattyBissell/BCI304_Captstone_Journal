@@ -685,13 +685,13 @@ gdal.Translate(
 
 <p>The Kinect Fin supplied would not play with my laptop. Late in the piece, not enough time to troubleshoot it properly, and a genuine shame because the hardware is good and it is already in the Whitsundays.</p>
 
-<p>Swapping to MediaPipe took an afternoon rather than a rebuild, and that is the part worth recording. The entire interaction runs off one constant at the top of the script:</p>
+<p>Swapping to MediaPipe took an afternoon rather than complete rebuild. The entire interaction runs off one constant at the top of the script:</p>
 
 <pre><code>SOURCE = 'mediapipe'     # 'kinect' or 'mediapipe'</code></pre>
 
 <p>Everything downstream — hit detection, the accumulator, the reveal, the comp — is written against normalised screen space. Only one function, <code>hand_screen()</code>, knows which sensor is running, and it returns the same three numbers either way: x, y, radius, in centre-space.</p>
 
-<p>That was not foresight exactly. It fell out of the coordinate work two weeks earlier. Once I had been forced to be explicit about which space every number lived in, supporting a second source was a matter of writing one more conversion rather than changing anything that consumed it.</p>
+<p>This is a tricky aspect of the project, the display aspect ratio, vs kinect and or MediaPipe, supporting MediaPipe a second source was a matter of writing one more conversion but does mean my TouchDesigner files 'should' point to a dedicated H:W operator (hopefully!)</p>
 
 <p>Worth connecting to the 2032 window. Any sensor I choose now is obsolete before the thing is installed. The part of this build with a six-year shelf life is not the Kinect and not MediaPipe, it is the boundary between them and everything else.</p>
 
@@ -706,17 +706,17 @@ gdal.Translate(
 <hr>
 
 <p class="date">23.10.2026</p>
-<h2>Inclusive design, written down properly</h2>
+<h2>Inclusive design, expanded</h2>
 
-<p>These decisions have been driving the build for a fortnight and have never made it into the journal, so here they are.</p>
+<p>The decision to build toward inclusivity has become key thinking, from cognitive accessibility children to adults, seeking universal design. Currently a large barrier is hands. However torso could also be a driver (silhoutte idea) </p>
 
 <h3>Presence before reaching</h3>
 
-<p>Follows directly from what the skeleton actually is. It is a learned model, not geometry, and a learned model performs best on poses resembling its training data. Seated users, wheelchair users, people with restricted arm movement and people standing in a queue holding a bag all sit further from that training distribution, and they get worse tracking for reasons that have nothing to do with whether the sensor can see them.</p>
+<p>Follows directly from what the skeleton actually is. Machine learning models performs best on poses resembling its training data. Seated users, wheelchair users, people with restricted arm movement and people standing in a queue holding a bag all sit further from that training distribution, and they get worse tracking for reasons that have nothing to do with whether the sensor can see them.</p>
 
-<p>So reaching with a hand cannot be the only way in. <strong>Torso proximity triggers; reaching enhances.</strong> Two routes to the same payoff, and the fallback is the more reliable of the two rather than a degraded version.</p>
+<p>So reaching with a hand cannot be the only way in. <strong>Torso proximity triggers; reaching enhances.</strong> Mapping to torso or other segments comes with adjusting the screen scale so things are within reach.</p>
 
-<h3>Soft gating, not hard gating</h3>
+<h3>Soft gating, not hard gating where possible</h3>
 
 <p><code>MIN_RATE</code> never reaching zero means nobody can do everything right and receive no response, with no way of knowing why. A hard distance gate would have been easier to implement and would silently exclude people.</p>
 
@@ -739,7 +739,9 @@ gdal.Translate(
 
 <p>The demo was the strongest thing in the presentation, which is worth noting because it is the only part where the audience sees the thing work rather than being told about it. Everything else is renders and mock-ups.</p>
 
-<div class="slot"><div><b>Video slot</b>Screen capture of the working sculpture finder. Drop the MP4 in here as a <code>&lt;video controls&gt;</code> tag, or embed it from wherever it is hosted.</div></div>
+<div class="slot">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/tr_FrpLwcBU" title="Screen capture of the working sculpture finder" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+</div>
 
 <p>Reviewing the recording afterwards, two clear lessons for next time. I was 12 to 16 dB quieter than the other presenters, which is audible and costs the content credibility it had earned. And I talked continuously for seventy seconds over the demo, which is exactly the stretch where the audience is trying to watch something new and listen at the same time. Set it running, say one sentence, then be quiet for five seconds.</p>
 
@@ -760,14 +762,19 @@ gdal.Translate(
   <li><strong>No community engagement beyond Council as client</strong> and published material from Reef Ecologic and tourism operators. Real engagement would mean Reef Ecologic, airport operations, and travellers.</li>
   <li><strong>No Ngaro or Gia consultation.</strong> This prototype uses Ngaro-named sculptures and Ngaro cultural context, built entirely from publicly available material. The task <em>"research local Ngaro/Gia opinions of the sculptures"</em> was written into our week five plan and was never completed by anyone, me included. Cultural approval is a gate before any public deployment, not a step we have taken.</li>
   <li><strong>Legacy undecided.</strong> Does the display come out after the Games or stay? That one question answers the sustainability and maintenance ones at the same time — who powers it, who keeps the sculpture and restoration data current, and whether it is built for a fortnight or a decade.</li>
-  <li><strong>No accessibility testing with actual seated users.</strong> The reasoning above is sound but it is reasoning, not evidence.</li>
-  <li><strong>Aspect ratio unresolved.</strong> The map is 2.08:1 and the comp is 1.21:1, so the sculpture coordinates and the composition do not yet line up cleanly.</li>
+  <li><strong>No group testing.</strong> An unfortunate case of not being able to access a Kinect earlier, although when one was genriously loaned I thought it was working, but actually running in TouchDesigner was a constant stutter</li>
+  <li><strong>Aspect ratio unautomated</strong> The map is 2.08:1 and the comp is 1.21:1, cleaner version should be implemented</li>
   <li><strong>Visuals could be expanded.</strong> The water is a displace driven by a noise normal, which worked well enough for the deliverable. A foam ring at the carve edge and a depth-tinted ramp were both scoped and neither was built.</li>
 </ul>
 
 <p>Two things I would do differently. I would have put the inclusive design reasoning in writing weeks earlier, because it was driving decisions long before it was documented. And I would have tested the Kinect on my own machine in week five rather than week eleven.</p>
 
-<p>The thing I will carry out of this is smaller and more useful than I expected. Most of the hard problems here were not interaction problems, they were problems of knowing which space a number was in. Metres or fractions, which origin, which direction, which axis. Once that was explicit, the sensor swap, the hit detection and the compositing all got easier, and the one afternoon where the hardware failed and the system did not care paid back every hour spent on it.</p>
+<p>The thing I will carry out of this is smaller and more useful than I expected. Most of the hard problems here were not interaction problems, they were problems of knowing which space a number was in. Metres or fractions, which origin, which direction, which axis. Once that was explicit, the sensor swap, the hit detection and the compositing all got easier, and the one afternoon where the hardware failed and the system did not care paid back every hour spent on it.
+
+
+
+
+</p>
 
 <hr>
 
